@@ -1,5 +1,7 @@
 import pygame
 import random
+import tkinter as tk
+from tkinter import messagebox
 
 
 class Fruit(object):
@@ -17,10 +19,10 @@ class Fruit(object):
 
 
 class Snake(object):
-    body = []
-    turns = {}
+    
 
     def __init__(self, color, position):
+        self.body = []
         self.color = color
         self.body.append((0, 0))
         self.body.append((1, 0))
@@ -35,6 +37,13 @@ class Snake(object):
         self.body.append((-1, -1))
 
     def move(self):
+        self.turn()
+        self.head = (self.head[0]+self.dir_x, self.head[1]+self.dir_y)
+        for i in range(self.lenght - 1):
+            self.body[i] = self.body[i+1]
+        self.body[self.lenght-1] = self.head
+
+    def turn(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -42,23 +51,21 @@ class Snake(object):
 
             for key in keys:
                 if keys[pygame.K_LEFT]:
-                    self.dir_x = -1
-                    self.dir_y = 0
+                    if self.dir_x != 1 and self.dir_y != 0:
+                        self.dir_x = -1
+                        self.dir_y = 0
                 elif keys[pygame.K_RIGHT]:
-                    self.dir_x = 1
-                    self.dir_y = 0
+                    if self.dir_x != -1 and self.dir_y != 0:
+                        self.dir_x = 1
+                        self.dir_y = 0
                 elif keys[pygame.K_UP]:
-                    self.dir_x = 0
-                    self.dir_y = -1
+                    if self.dir_x != 0 and self.dir_y != 1:
+                        self.dir_x = 0
+                        self.dir_y = -1
                 elif keys[pygame.K_DOWN]:
-                    self.dir_x = 0
-                    self.dir_y = 1
-
-        self.head = (self.head[0]+self.dir_x, self.head[1]+self.dir_y)
-        for i in range(self.lenght - 1):
-            self.body[i] = self.body[i+1]
-        self.body[self.lenght-1] = self.head
-
+                    if self.dir_x != 0 and self.dir_y != -1:
+                        self.dir_x = 0
+                        self.dir_y = 1
 
 def draw_grid(w, rows, surface):
     cell_length = w // rows
@@ -107,23 +114,33 @@ def body_collision(snake: Snake):
 def boundaries_collision(snake: Snake, rows):
     return snake.head[0] >= rows or snake.head[1] >= rows or snake.head[0] < 0 or snake.head[1] < 0
 
+def message_box(subject, content):
+    root = tk.Tk()
+    root.attributes("-topmost", True)
+    root.withdraw()
+    messagebox.showinfo(subject, content)
+    try:
+        root.destroy()
+    except:
+        pass
 
 if __name__ == "__main__":
     global width, rows
     width = 600
     rows = 15
     window = pygame.display.set_mode((width, width))
-    snake = Snake((255, 0, 0), (10, 10))
-    fruit = Fruit(rows)
     clock = pygame.time.Clock()
     while True:
-        pygame.time.delay(90)
-        clock.tick(10)
-        if game_over(snake, rows):
-            break
-        if snake.head == fruit.position:
-            snake.eat()
-            pos = fruit.generate_next()
-        snake.move()
-
-        redraw_window(window, fruit, snake)
+        snake = Snake((255, 0, 0), (10, 10))
+        fruit = Fruit(rows)
+        while True:
+            pygame.time.delay(90)
+            clock.tick(10)
+            if game_over(snake, rows):
+                message_box('Game over',f'Score:{snake.lenght}')
+                break
+            if snake.head == fruit.position:
+                snake.eat()
+                pos = fruit.generate_next()
+            snake.move()
+            redraw_window(window, fruit, snake)
