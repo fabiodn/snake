@@ -7,7 +7,7 @@ class Fruit(object):
 
     def __init__(self, cell_count):
         self.cell_count = cell_count
-        # self.generate_next()
+        self.generate_next()
 
     def generate_next(self):
         x = random.randint(0, self.cell_count-2)

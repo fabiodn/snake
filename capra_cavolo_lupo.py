@@ -1,1 +1,0 @@
-''' finocchio, capra, lupo, pastore '''
